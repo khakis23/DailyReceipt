@@ -1,0 +1,220 @@
+**/GoogleCalCred.json
+**/config.json
+**/secrets.json
+**/StoredCredential
+**/tokens/
+
+# ======================
+# Compiled class files
+# ======================
+*.class
+
+# ======================
+# Logs
+# ======================
+*.log
+
+# ======================
+# Package files
+# ======================
+*.jar
+*.war
+*.ear
+
+# ======================
+# Gradle
+# ======================
+.gradle/
+build/
+
+# ======================
+# Maven
+# ======================
+target/
+
+# ======================
+# IntelliJ IDEA
+# ======================
+.idea/
+*.iml
+out/
+
+# ======================
+# VS Code
+# ======================
+.vscode/
+
+# ======================
+# macOS
+# ======================
+.DS_Store
+
+# ======================
+# Environment / secrets
+# ======================
+.env
+.env.*
+config.local.*
+
+#######################################
+# Python
+#######################################
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# pip / uv / poetry
+pip-wheel-metadata/
+pip-log.txt
+poetry.lock
+uv.lock
+
+# PyInstaller
+*.manifest
+*.spec
+
+#######################################
+# Build / Distribution
+#######################################
+
+build/
+dist/
+.eggs/
+*.egg-info/
+.installed.cfg
+*.egg
+
+#######################################
+# Testing / Coverage
+#######################################
+
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+#######################################
+# Logs / Runtime
+#######################################
+
+*.log
+logs/
+*.out
+*.err
+
+#######################################
+# Jupyter / IPython
+#######################################
+
+.ipynb_checkpoints/
+profile_default/
+ipython_config.py
+
+#######################################
+# IDEs / Editors
+#######################################
+
+# VS Code
+.vscode/
+
+# PyCharm / IntelliJ
+.idea/
+*.iml
+
+# Sublime
+*.sublime-project
+*.sublime-workspace
+
+#######################################
+# macOS
+#######################################
+
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+#######################################
+# Windows
+#######################################
+
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+#######################################
+# Environment variables / secrets
+#######################################
+
+.env
+.env.*
+*.env
+
+#######################################
+# Flask / FastAPI
+#######################################
+
+instance/
+.webassets-cache
+
+#######################################
+# Data files (adjust if you want to track some)
+#######################################
+
+data/
+*.csv
+*.tsv
+*.parquet
+*.sqlite
+*.db
+
+#######################################
+# Model / AI artifacts
+#######################################
+
+models/
+*.bin
+*.pt
+*.pth
+*.onnx
+*.gguf
+*.safetensors
+
+#######################################
+# Ollama / local LLM
+#######################################
+
+.ollama/
+ollama.log
+
+#######################################
+# Temporary / misc
+#######################################
+
+tmp/
+temp/
+*.swp
+*.bak
+*.old

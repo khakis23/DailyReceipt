@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "title": {"type": "string"},
+      "body": {"type": "string"},
+      "ascii_art": {
+        "type": "array",
+        "minItems": 6,
+        "maxItems": 24,
+        "items": {
+          "type": "string",
+          "minLength": 42,
+          "maxLength": 42
+        }
+      },
+      "art_title": {"type": "string"}
+    },
+    "required": ["title", "body", "ascii_art", "art_title"],
+    "additionalProperties": false
+  },
+
+  "model": "gemma3:4b",
+
+  "model_options": {
+    "temperature": 0.75,
+    "top_p": 0.9,
+    "top_k": 40,
+    "repeat_penalty": 1.2,
+    "num_predict": 600
+  }
+}
+
