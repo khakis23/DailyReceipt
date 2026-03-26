@@ -1,11 +1,6 @@
 from ollama import chat
 import json
-from pathlib import Path
-
-
-SYSTEM = Path("src/runmodel/config/system.md")  # TODO FIX to work on any envirnemnt!!
-USER = Path("src/runmodel/config/user.md")
-SCHEMA = Path("src/runmodel/config/model_config.json")
+from src.path.paths import all_paths
 
 
 def get_receipt_text(api_data: dict, retry_attempts=5, keep_alive="30h") -> dict[str, str]:
@@ -125,13 +120,17 @@ def _get_config(api_data: dict) -> tuple[str, str, dict, dict, str]:
     model_options: dict
     model: str
 
+    system_path = all_paths.get("SYSTEM", "src/runmodel/config/system.md")
+    user_path = all_paths.get("USER", "src/runmodel/config/user.md")
+    schema_path = all_paths.get("SCHEMA", "src/runmodel/config/model_config.json")
+
     # read config files
     try:
-        system = SYSTEM.read_text(encoding="utf-8")
-        user = USER.read_text(encoding="utf-8").format(
+        system = system_path.read_text(encoding="utf-8")
+        user = user_path.read_text(encoding="utf-8").format(
             api_data=json.dumps(api_data, ensure_ascii=True)
         )
-        model_config = json.loads(SCHEMA.read_text(encoding="utf-8"))
+        model_config = json.loads(schema_path.read_text(encoding="utf-8"))
     except FileNotFoundError as e:
         print(f"Error reading config files: {e}")
         raise Exception(f"Error reading config files: {e}")
@@ -179,7 +178,7 @@ def _check_json_headers(resp_dict: dict, mes_ref: list, required: list) -> bool:
     return True
 
 
-# TODO FOR TESTING
+##### TESTING #####
 if __name__ == "__main__":
     # if err := model_status().get("error"):
     #     print(err)

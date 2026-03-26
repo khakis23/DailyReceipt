@@ -1,0 +1,15 @@
+{
+  "system": {
+    "runTimes": ["21:48"],
+    "activeAPIs": ["CheckiDay", "Weather", "GoogleCal", "RandWord"],
+    "logPath": "/tmp/receiptprint.log"
+  },
+  "weather": {
+    "location": "Durango, CO"
+  },
+  "googleCal": {
+    "daysFromNow": 14,
+    "maxResults": 100,
+    "calendars": ["Holidays in United States", "blacktrumpet5100@gmail.com", "Home", "Work"]
+  }
+}

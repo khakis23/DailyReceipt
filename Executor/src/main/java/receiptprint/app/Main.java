@@ -8,7 +8,6 @@ import java.net.http.HttpClient;
 
 
 public class Main {
-    // TODO CREATE LOGGER
     public static void main(String[] args) {
         DataDispatcher dispatcher = new DataDispatcher();
         dispatcher.run();

@@ -1,7 +1,24 @@
-from receiptprinter.util import get_v_or_d, setup_endpoint
+from typing import override
+from src.receiptprinter.util import get_v_or_d, setup_endpoint
 
 
 class ReceiptPrinter:
+    """
+    A controller for managing USB communication and data transmission to a
+    thermal receipt printer.
+
+    Specifically designed for the **Epson TM-T88VI** (and similar compatible ESC/POS
+    hardware), this class serves as the hardware interface for the **LLMReceiptPrintAPI**.
+    It handles low-level USB endpoint discovery via `pyusb`, automates printer
+    initialization, and manages the injection of **ESC/POS hex commands** for
+    formatted output and automated paper cutting.
+
+    Attributes:
+        printer_line_size (int): The maximum character width for 80mm thermal paper,
+            defaulting to **42 characters** (Font A).
+        ep (usb.core.Endpoint): The active 'OUT' USB endpoint used to pipe
+            raw byte data to the hardware.
+    """
 
     printer_line_size = 42
 
@@ -17,7 +34,18 @@ class ReceiptPrinter:
         # printing endpoint
         self.ep = setup_endpoint(vendor, product)
 
+    def set_printer_line_size(self, size: int):
+        self.printer_line_size = size
+
     def print_from_bytes(self, data: bytes) -> Exception | None:
+        """
+        Print data to the printer. Cuts paper after printing.
+
+        Args:
+            data:  bytes to print to the printer
+
+        Returns:  None if successful, Exception if not
+        """
         # build payload
         payload = b'\x1b\x40\n\n'  # init
         payload += data
@@ -31,6 +59,16 @@ class ReceiptPrinter:
         return None
 
     def print_formatted_string(self, data: str, h_space=2, t_space=2) -> Exception | None:
+        """
+        Print formatted string to the printer.
+
+        Args:
+            data:     string formatted with proper line breaks for printer line width.
+            h_space:  heading vertical space
+            t_space:  trailing vertical space
+
+        Returns:  None if successful, Exception if not
+        """
         final_str = h_space * '\n'
         for line in data.split('\n'):
             final_str += line + '\n'
@@ -38,6 +76,17 @@ class ReceiptPrinter:
         return self.print_from_bytes(final_str.encode())
 
     def print_inline_string(self, data: str, h_space=2, t_space=2) -> Exception | None:
+        """
+        TODO NOTE: DOES NOT WORK WITH SOME CHARACTERS LIKE TABS AND EXTRA SPACES.
+            - Format externally and call print_formatted_string() instead!
+
+        Args:
+            data:     string formatted with proper line breaks for printer line width.
+            h_space:  heading vertical space
+            t_space:  trailing vertical space
+
+        Returns:  None if successful, Exception if not
+        """
         final_str = ""
         count = 0
         current_word = ""
@@ -79,6 +128,28 @@ class ReceiptPrinter:
         final_str += current_word + '\n' * t_space
         # convert to bytes and print
         return self.print_from_bytes(final_str.encode())
+
+
+class DemoReceiptPrinter(ReceiptPrinter):
+    """
+    'Demo' receipt printer that prints to console. Good for testing.
+    """
+
+    @override
+    def __init__(self):
+        print("Using Demo Receipt Printer!")
+
+    @override
+    def print_from_bytes(self, data: bytes) -> Exception | None:
+        print(data.decode())
+
+    @override
+    def print_formatted_string(self, data: str, h_space=2, t_space=2) -> Exception | None:
+        print(h_space * '\n' + data + '\n' * t_space)
+
+    @override
+    def print_inline_string(self, data: str, h_space=2, t_space=2) -> Exception | None:
+        print(h_space * '\n' + data + '\n' * t_space)
 
 
 
