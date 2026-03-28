@@ -104,7 +104,7 @@ def _utf8_to_ascii(text: str) -> str:
         "\u2018": "'", "\u2019": "'",
         "\u201c": '"', "\u201d": '"',
         "\u2013": "-", "\u2014": "-",
-        "\u2026": "...",
+        "\u2026": "...", "\u00b0": " ",  # degree symbol (ignore)
     }
 
     for utf8, ascii in utf8_to_ascii_map.items():

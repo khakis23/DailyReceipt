@@ -5,13 +5,9 @@ from src.runmodel.response_formatter import format_response
 from src.runmodel.run_model import *
 
 
-# setup objects for flask and Printer
+# global objects
 app = Flask(__name__)
-try:
-    rp = ReceiptPrinter()
-except Exception as e:
-    print(e)
-    rp = DemoReceiptPrinter()
+rp: ReceiptPrinter
 
 
 @app.route("/", methods=["GET"])
@@ -139,4 +135,13 @@ def run(port: int=8000):
     Args:
         port: Desired port to run the app on (default: 8000).
     """
+    global app, rp
+
+    # control when RP is setup (due to working directory differences/issues)
+    try:
+        rp = ReceiptPrinter()
+    except Exception as e:
+        print(e)
+        rp = DemoReceiptPrinter()
+
     app.run(host="0.0.0.0", port=port)
