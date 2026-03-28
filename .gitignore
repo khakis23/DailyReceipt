@@ -2,6 +2,7 @@
 **/secrets.json
 **/StoredCredential
 **/tokens/
+**/config.json
 
 # ======================
 # Compiled class files
