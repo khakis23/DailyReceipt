@@ -3,6 +3,7 @@
 **/StoredCredential
 **/tokens/
 **/config.json
+**/receipt_number.txt
 
 # ======================
 # Compiled class files
