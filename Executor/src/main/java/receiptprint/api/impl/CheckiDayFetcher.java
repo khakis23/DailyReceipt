@@ -4,6 +4,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import receiptprint.api.ApiFetchException;
 import receiptprint.api.IapiFetcher;
+import receiptprint.system.Logger;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -18,20 +19,18 @@ public class CheckiDayFetcher extends IapiFetcher {
 
     public CheckiDayFetcher(HttpClient client) {
         super(client);
+
+        // get API key
+        try {
+            apiKey = getApiKey(apiGetName);
+        }
+        catch (IllegalArgumentException e) {
+            Logger.err("Count not get API key for " + this.getClass().getSimpleName() + e.getMessage());
+        }
     }
 
     @Override
-    protected String fetchData() {
-        // get API key
-        String apiKey;
-        try{
-            apiKey = getApiKey(apiGetName);
-        }
-        catch (IllegalStateException e) {
-            System.out.println(e.getMessage());   // TODO log
-            return "";
-        }
-
+    protected String fetchData() throws ApiFetchException {
         // make request attempts
         try {
             return makeRequests(

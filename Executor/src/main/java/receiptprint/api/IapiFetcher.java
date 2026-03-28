@@ -1,6 +1,7 @@
 package receiptprint.api;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import receiptprint.system.Logger;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -11,23 +12,30 @@ import java.util.Objects;
 
 
 public abstract class IapiFetcher implements APIFetcher {
-    protected final HttpClient client;   // instantiate a single client
-    protected int requestAttempts = 0;
     protected final int MAX_REQUEST_ATTEMPTS = 3;
-    protected final String LOG_NAME = "";
+    protected final HttpClient client;
 
+    protected int requestAttempts = 0;
+    protected boolean debug = false;
     protected String apiKey;
 
 
     public IapiFetcher(HttpClient client) {
         this.client = client;
     }
+    public IapiFetcher(HttpClient client, boolean debug) { this(client); this.debug = debug;}
 
 
     // PRE-DEFINED
-    public JSONObject getAPIData() {
+    public JSONObject getAPIData() throws Exception {
+        // fetch data from API
         String data = fetchData();
-//        System.out.println(data);   // TODO DEBUGGING
+
+        // debugging
+        if (debug)
+            Logger.log(data);
+
+        // return cleaned data
         JSONObject jsonData = new JSONObject(data);
         return cleanData(jsonData);
     }
@@ -85,19 +93,19 @@ public abstract class IapiFetcher implements APIFetcher {
                 // maybe okay status code, but did not get valid response, loop again
             }
             catch (Exception e) {
-                System.out.println(e.getMessage());    // TODO log error
+                Logger.warn("Fetch #" + requestAttempts + " failed: " + e.getMessage());
             }
         }
 
         // request attempts failed to send
         if (res == null)
-            throw new ApiFetchException("No request attempts made for " + LOG_NAME + ".");
+            throw new ApiFetchException("API request failed for " + this.getClass().getSimpleName());
         // request never gave valid response
-        throw new ApiFetchException(LOG_NAME, res.statusCode());
+        throw new ApiFetchException(this.getClass().getSimpleName(), res.statusCode());
     }
 
 
     // TO IMPLEMENT
-    protected abstract String fetchData();
+    protected abstract String fetchData() throws Exception;
     protected abstract JSONObject cleanData(JSONObject data);
 }

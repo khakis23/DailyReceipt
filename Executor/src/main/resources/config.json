@@ -1,6 +1,6 @@
 {
   "system": {
-    "runTimes": ["21:48"],
+    "runTimes": ["20:47"],
     "activeAPIs": ["CheckiDay", "Weather", "GoogleCal", "RandWord"],
     "logPath": "/tmp/receiptprint.log"
   },

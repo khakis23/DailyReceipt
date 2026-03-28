@@ -3,7 +3,6 @@ from src.receiptprinter.receipt_print import ReceiptPrinter, DemoReceiptPrinter
 from src.receiptprinter.util import get_receipt_number, set_receipt_number
 from src.runmodel.response_formatter import format_response
 from src.runmodel.run_model import *
-from web.PrinterError import PrinterError
 
 
 # setup objects for flask and Printer

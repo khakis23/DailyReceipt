@@ -3,6 +3,7 @@ package receiptprint.api.impl;
 import org.json.JSONObject;
 import receiptprint.api.ApiFetchException;
 import receiptprint.api.IapiFetcher;
+import receiptprint.system.Logger;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -18,19 +19,21 @@ public class WeatherFetcher extends IapiFetcher {
 
     public WeatherFetcher(HttpClient client) {
         super(client);
-    }
 
-    @Override
-    protected String fetchData() {
         // get API key
-        String apiKey;
-        try{
+        try {
             apiKey = getApiKey(apiGetName);
         }
         catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());   // TODO LOGGER
-            return "";
+            Logger.err("Count not get API key for " + this.getClass().getSimpleName() + e.getMessage());
         }
+    }
+
+    @Override
+    protected String fetchData() throws ApiFetchException {
+        // only run if API key is set
+        if (apiKey == null)
+            throw new ApiFetchException("No API key found for " + apiGetName);
 
         // build request url
         String baseUrl = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/";
@@ -38,7 +41,6 @@ public class WeatherFetcher extends IapiFetcher {
                 "feelslike,humidity,precip,precipprob,precipcover,preciptype," +
                 "snow,windgust,windspeed,cloudcover,severerisk,sunset,moonphase";
 
-        // build URL
         String url = String.format("%s%s/today?unitGroup=us&key=%s&contentType=json&include=days,current,alerts&elements=%s",
                 baseUrl,
                 URLEncoder.encode(getLocation(), StandardCharsets.UTF_8),
@@ -47,18 +49,12 @@ public class WeatherFetcher extends IapiFetcher {
         );
 
         // make requests
-        try{
-            return makeRequests(HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .GET()
-                    .header("Accept", "application/json")
-                    .build()
-            );
-        }
-        catch (ApiFetchException e){
-            System.out.println(e.getMessage());
-            return "";
-        }
+        return makeRequests(HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .header("Accept", "application/json")
+                .build()
+        );
     }
 
     @Override
@@ -86,7 +82,7 @@ public class WeatherFetcher extends IapiFetcher {
         try (InputStream in = getClass().getClassLoader().getResourceAsStream("config.json")) {
 
             if (in == null) {
-                System.err.println("Warning: config.json not found for location. using default.");
+                Logger.warn("config.json not found for location. Using default: " + DEFAULT_LOCATION);
                 return DEFAULT_LOCATION;
             }
 
@@ -98,7 +94,8 @@ public class WeatherFetcher extends IapiFetcher {
             return config.getJSONObject("weather").getString("location");
 
         } catch (Exception e) {
-            System.err.println("Could not read location from config.json. Error: " + e.getMessage());
+        Logger.err("Could not read location from config.json. Error: " + e.getMessage()
+                + "\nUsing default: " + DEFAULT_LOCATION);
             return DEFAULT_LOCATION;
         }
     }

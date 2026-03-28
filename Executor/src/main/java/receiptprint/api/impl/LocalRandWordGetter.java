@@ -35,7 +35,6 @@ public class LocalRandWordGetter extends IapiFetcher {
 
     @Override
     protected JSONObject cleanData(JSONObject data) {
-        System.out.println("LocalRandWordGetter: " + data);
         return data;
     }
 }

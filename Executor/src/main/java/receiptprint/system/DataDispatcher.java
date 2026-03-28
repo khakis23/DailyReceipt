@@ -25,6 +25,7 @@ public class DataDispatcher {
     private List<HourMin> schedule = new ArrayList<>();
     private List<APIFetcher> fetchers = new ArrayList<>();
 
+
     public void run() {
         // sets schedule and fetchers
         loadConfigParams();
@@ -53,7 +54,7 @@ public class DataDispatcher {
     private void dispatch(){
         // called by scheduler
         var data = fetchData();
-        System.out.println("Data Successfully Fetched! Data size: " + data.size());
+        Logger.log("Data Successfully Fetched! Data size: " + data.size());
 
         // create request
         HttpClient client = HttpClient.newHttpClient();
@@ -69,17 +70,21 @@ public class DataDispatcher {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
         }
         catch (Exception e){
-            System.out.println("Error sending data to server: " + e.getMessage()); // TODO LOG
+            Logger.err("Error sending data to server: " + e.getMessage());
+            return;
         }
 
-        assert response != null;
-        System.out.println(response.body());
+        // log results of request
+        if (response.statusCode() != 200)
+            Logger.err("Server Response: " + response.statusCode() + " - " + response.body());
+        else
+            Logger.log("Server Response: " + response.statusCode() + " - " + response.body());
     }
 
-    private List<JSONObject> fetchData(){
-        // single client
-        HttpClient client = HttpClient.newHttpClient();
 
+    private List<JSONObject> fetchData(){
+        // create fetchers
+        HttpClient client = HttpClient.newHttpClient();
         APIFetcher[] fetchers = {
                 new CheckiDayFetcher(client),
                 new WeatherFetcher(client),
@@ -92,7 +97,7 @@ public class DataDispatcher {
             try {
                 data.add(fetcher.getAPIData());
             } catch (Exception e) {
-                System.out.println("API fetch failed: " + e.getMessage());   // TODO LOGGER
+                Logger.warn("API fetch failed for " + fetcher.getClass().getSimpleName() + e.getMessage());
             }
         }
 
@@ -102,13 +107,15 @@ public class DataDispatcher {
         return data;
     }
 
-    private void loadConfigParams() {
+    private void loadConfigParams() throws RuntimeException {
         try {
             // Use the thread's context class loader to be safe with Gradle/JAR environments
             InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.json");
 
+            // config is required since it's only opened on init
             if (in == null) {
-                throw new RuntimeException("CRITICAL: config.json not found in src/main/resources/");
+                Logger.err("config.json not found in src/main/resources/");
+                throw new RuntimeException("config.json not found in src/main/resources/");
             }
 
             // Read bytes first to ensure we aren't passing a null/closed stream to the JSON parser
@@ -123,8 +130,7 @@ public class DataDispatcher {
 
             in.close();
         } catch (Exception e) {
-            System.err.println("Config Load Failed: " + e.getMessage());
-            e.printStackTrace();
+            Logger.err("Config Load Failed: " + e.getMessage());
             System.exit(1);
         }
     }
@@ -166,7 +172,7 @@ public class DataDispatcher {
                     fetchers.add(new LocalRandWordGetter(HttpClient.newHttpClient()));
                     break;
                 default:
-                    System.out.println("Unknown API: " + apiName);  // TODO LOGGER
+                    Logger.warn("Unknown API: " + apiName);
             }
         }
     }

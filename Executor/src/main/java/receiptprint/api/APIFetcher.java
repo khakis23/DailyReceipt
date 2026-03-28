@@ -3,7 +3,7 @@ import org.json.JSONObject;
 
 
 public interface APIFetcher {
-    JSONObject getAPIData();
+    JSONObject getAPIData() throws Exception;
 }
 
 
