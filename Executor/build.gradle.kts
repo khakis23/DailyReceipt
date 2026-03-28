@@ -1,5 +1,10 @@
 plugins {
-    id("java")
+    java    
+    id("application")
+}
+
+application {
+    mainClass.set("receiptprint.app.Main")
 }
 
 group = "org.example"
