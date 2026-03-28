@@ -4,6 +4,8 @@
 **/tokens/
 **/config.json
 **/receipt_number.txt
+**/stop_receipt_printer.sh
+
 
 # ======================
 # Compiled class files
@@ -14,6 +16,7 @@
 # Logs
 # ======================
 *.log
+*.lck
 
 # ======================
 # Package files
