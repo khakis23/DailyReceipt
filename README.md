@@ -120,12 +120,16 @@ Acts as the processing engine and hardware interface.
 Before running the application, you must populate several configuration and secret files that are excluded from version control.
 
 ### `receipt_number.txt` 
+TODO
 
 ### `config.json`
+TODO
 
 ### `GoogleCalCred.json`
+TODO
 
 ### `secrets.json`
+TODO
 
 
 
