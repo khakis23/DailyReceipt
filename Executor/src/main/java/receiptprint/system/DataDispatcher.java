@@ -20,14 +20,35 @@ import java.util.concurrent.*;
 import java.time.*;
 
 
+/// Manages the scheduling and dispatching of data retrieval tasks.
+///
+/// DataDisbatcher sets up a disbatch schedule (configured `config.json` file)
+/// for retrieving data using APIFetchers (configured in the `config.json`).
+/// The DataDisbatcher then dispatches the data to a locally hosted server for
+/// processing. All errors, warnings, and standard logs are logged using the
+/// custom Logger class.
 public class DataDispatcher {
+
+    /// Background thread for efficiently scheduling
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+    /// Configured schedule
     private List<HourMin> schedule = new ArrayList<>();
+
+    /// Configured Fetchers
     private List<APIFetcher> fetchers = new ArrayList<>();
 
+    /// HTTP client for Fetchers
+    private HttpClient client = HttpClient.newHttpClient();
 
+
+    /// **Run the Data Dispatcher**
+    ///
+    /// This method will run indefinitely—until the program is terminated by
+    /// the user or a fatal error occurs. The Disbatcher will execute on the
+    /// configured schedule in `config.json`.
     public void run() {
-        // sets schedule and fetchers
+        // sets schedule and fetchers from config.json
         loadConfigParams();
 
         // create infinite schedules
@@ -36,6 +57,8 @@ public class DataDispatcher {
         }
     }
 
+
+    /// Set the scheduler's execution time(s).
     private void schedule(int hour, int minute) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime future = now.withHour(hour).withMinute(minute);
@@ -51,6 +74,10 @@ public class DataDispatcher {
         scheduler.scheduleAtFixedRate(this::dispatch, delay, period, TimeUnit.SECONDS);
     }
 
+    /// Method called when execution is called by the scheduler.
+    ///
+    /// Calls fetchData(), then dispatches the data to the LLMPrinter server,
+    /// and logs the response from the server.
     private void dispatch(){
         // called by scheduler
         var data = fetchData();
@@ -81,18 +108,12 @@ public class DataDispatcher {
             Logger.log("Server Response: " + response.statusCode() + " - " + response.body());
     }
 
-
+    /// Fetch data using API Fetchers.
+    ///
+    /// Handles internal exceptions and logs errors.
     private List<JSONObject> fetchData(){
-        // create fetchers
-        HttpClient client = HttpClient.newHttpClient();
-        APIFetcher[] fetchers = {
-                new CheckiDayFetcher(client),
-                new WeatherFetcher(client),
-                new GoogleCalFetcher(client),
-        };
-
         // fetch data and combine
-        List<JSONObject> data = new ArrayList<>(fetchers.length);
+        List<JSONObject> data = new ArrayList<>(fetchers.size());
         for (APIFetcher fetcher : fetchers) {
             try {
                 data.add(fetcher.getAPIData());
@@ -103,10 +124,12 @@ public class DataDispatcher {
 
         // stamp date into data
         data.addFirst(new JSONObject().put("Today's Date", LocalDateTime.now().toString()));
-
         return data;
     }
 
+    /// Load user configurations from `config.json`.
+    ///
+    /// Throws an exception if there is a failure.
     private void loadConfigParams() throws RuntimeException {
         try {
             // Use the thread's context class loader to be safe with Gradle/JAR environments
@@ -135,6 +158,9 @@ public class DataDispatcher {
         }
     }
 
+    /// Set the eternal schedule of the program from system configurations.
+    ///
+    /// Helper Method
     private void setSchedule(JSONObject system){
         // helper method
         JSONArray runTimes = system.getJSONArray("runTimes");
@@ -150,6 +176,9 @@ public class DataDispatcher {
         }
     }
 
+    /// Set the type of fetchers to use configured by the user.
+    ///
+    /// Helper Method
     private void setFetchers(JSONObject system){
         // helper method
         JSONArray activeAPIs = system.getJSONArray("activeAPIs");
@@ -160,16 +189,16 @@ public class DataDispatcher {
             // hardcoded API names since they have to be implemented anyway
             switch (apiName) {
                 case "CheckiDay":
-                    fetchers.add(new CheckiDayFetcher(HttpClient.newHttpClient()));
+                    fetchers.add(new CheckiDayFetcher(client));
                     break;
                 case "Weather":
-                    fetchers.add(new WeatherFetcher(HttpClient.newHttpClient()));
+                    fetchers.add(new WeatherFetcher(client));
                     break;
                 case "GoogleCal":
-                    fetchers.add(new GoogleCalFetcher(HttpClient.newHttpClient()));
+                    fetchers.add(new GoogleCalFetcher(client));
                     break;
                 case "RandWord":
-                    fetchers.add(new LocalRandWordGetter(HttpClient.newHttpClient()));
+                    fetchers.add(new LocalRandWordGetter(client));
                     break;
                 default:
                     Logger.warn("Unknown API: " + apiName);

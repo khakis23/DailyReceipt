@@ -1,6 +1,6 @@
 package receiptprint.system;
 
-
+/// Helper class for simple hour/min tracking
 public class HourMin{
     public int hour;
     public int min;

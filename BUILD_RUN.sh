@@ -6,16 +6,16 @@ JAVA_DIR="$BASE_DIR/Executor"
 
 echo "--- Starting DailyReceipt Deployment ---"
 
-# 1. Kill old processes
+# Kill old processes
 echo "Step 1: Clearing ports and old builds..."
 fuser -k 8001/tcp 2>/dev/null
 pkill -f "gradlew" 2>/dev/null
 
-# 2. Python Start (Now looking in the ROOT, not web)
+# Python Start 
 echo "Step 2: Starting Python API..."
 cd "$PYTHON_DIR" || exit 1
 
-# Updated: Looking for main.py in the project root
+# Looking for main.py in the project root
 if [ -f "main.py" ]; then
     nohup ./.venv/bin/python3 -u main.py > python_nohup.out 2>&1 &
     PYTHON_PID=$!
@@ -24,13 +24,13 @@ else
     exit 1
 fi
 
-# 3. Java Build & Run
+# Java Build & Run
 echo "Step 3: Starting Java Executor..."
 cd "$JAVA_DIR" || exit 1
 
 # If the code says "not found", let's make sure we are running from the right spot
 if ./gradlew clean assemble > /dev/null 2>&1; then
-    # We run from the Executor root so 'src/main/resources' is a valid relative path
+    # We run from the Executor root so its a valid path
     nohup ./gradlew run --no-daemon > java_nohup.out 2>&1 &
     JAVA_PID=$!
 else
@@ -39,7 +39,7 @@ else
     exit 1
 fi
 
-# 4. Final Verification
+# Final Verification
 echo "Step 4: Verifying stability..."
 sleep 5
 
